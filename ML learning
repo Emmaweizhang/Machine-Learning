@@ -15,6 +15,18 @@ from sklearn.impute import SimpleImputer
 
 from category_encoders import OneHotEncoder
 
+
+# Build Model
+model = make_pipeline(
+        OneHotEncoder(use_cat_names=True),
+        SimpleImputer(),
+        Ridge()    )
+    #LinearRegression())
+# Fit model
+model.fit(X_train, y_train)
+
+
+
 # Create 3D scatter plot
 fig = px.scatter_3d(
     df,
@@ -46,3 +58,24 @@ fig.update_traces(
 
 # Display figure
 fig.show()
+
+
+# Communicate results
+coefficients = model.named_steps['ridge'].coef_
+features = model.named_steps['onehotencoder'].get_feature_names()
+feat_imp = pd.Series(coefficients, index=features)
+feat_imp
+
+# Build bar chart
+feat_imp=feat_imp.sort_values(key=abs).tail(10).plot(kind='barh')
+
+
+# Label axes
+plt.xlabel('Importance [USD]')
+plt.ylabel('Feature')
+
+# Add title
+plt.title('Feature Importances for Apartment Price')
+
+# Don't delete the code below 👇
+plt.savefig("images/2-5-13.png", dpi=150)
